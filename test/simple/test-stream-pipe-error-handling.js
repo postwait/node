@@ -21,51 +21,38 @@
 
 var common = require('../common');
 var assert = require('assert');
-var tls = require('tls');
-var fs = require('fs');
+var Stream = require('stream').Stream;
 
+(function testErrorListenerCatches() {
+  var source = new Stream();
+  var dest = new Stream();
 
-var options = {
-  key: fs.readFileSync(common.fixturesDir + '/keys/agent2-key.pem'),
-  cert: fs.readFileSync(common.fixturesDir + '/keys/agent2-cert.pem')
-};
+  source.pipe(dest);
 
-var connections = 0;
-var message = "hello world\n";
-
-
-var server = tls.Server(options, function(socket) {
-  socket.end(message);
-  connections++;
-});
-
-
-server.listen(common.PORT, function() {
-  var client = tls.connect(common.PORT);
-
-  var buffer = '';
-
-  client.setEncoding('utf8');
-
-  client.on('data', function(d) {
-    assert.ok(typeof d === 'string');
-    buffer += d;
+  var gotErr = null;
+  source.on('error', function(err) {
+    gotErr = err;
   });
 
+  var err = new Error('This stream turned into bacon.');
+  source.emit('error', err);
+  assert.strictEqual(gotErr, err);
+})();
 
-  client.on('close', function() {
-    // readyState is deprecated but we want to make
-    // sure this isn't triggering an assert in lib/net.js
-    // See issue #1069.
-    assert.equal('closed', client.readyState);
+(function testErrorWithoutListenerThrows() {
+  var source = new Stream();
+  var dest = new Stream();
 
-    assert.equal(buffer, message);
-    console.log(message);
-    server.close();
-  });
-});
+  source.pipe(dest);
 
+  var err = new Error('This stream turned into bacon.');
 
-process.on('exit', function() {
-  assert.equal(1, connections);
-});
+  var gotErr = null;
+  try {
+    source.emit('error', err);
+  } catch (e) {
+    gotErr = e;
+  }
+
+  assert.strictEqual(gotErr, err);
+})();

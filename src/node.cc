@@ -1203,7 +1203,6 @@ ssize_t DecodeWrite(char *buf,
 
   for (size_t i = 0; i < buflen; i++) {
     unsigned char *b = reinterpret_cast<unsigned char*>(&twobytebuf[i]);
-    assert(b[1] == 0);
     buf[i] = b[0];
   }
 
@@ -2222,7 +2221,7 @@ static void EnableDebug(bool wait_connect) {
   assert(r);
 
   // Print out some information.
-  fprintf(stderr, "debugger listening on port %d\r\n", debug_port);
+  fprintf(stderr, "debugger listening on port %d", debug_port);
 }
 
 
