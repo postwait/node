@@ -248,9 +248,10 @@ Loading from the `require.paths` locations is only performed if the
 module could not be found using the `node_modules` algorithm above.
 Global modules are lower priority than bundled dependencies.
 
-#### **Note:** Please Avoid Modifying `require.paths`
+#### **Note:** Please Avoid Using `require.paths`
 
-`require.paths` may disappear in a future release.
+`require.paths` will only be supported through the end of the v0.4
+stable branch.  It is removed from node as of v0.5.
 
 While it seemed like a good idea at the time, and enabled a lot of
 useful experimentation, in practice a mutable `require.paths` list is
@@ -291,21 +292,6 @@ permanently and subtly alter the behavior of all other node programs in
 the same process.  As the application stack grows, we tend to assemble
 functionality, and those parts interact in ways that are difficult to
 predict.
-
-### Accessing the main module
-
-When a file is run directly from Node, `require.main` is set to its
-`module`. That means that you can determine whether a file has been run
-directly by testing
-
-    require.main === module
-
-For a file `foo.js`, this will be `true` if run via `node foo.js`, but
-`false` if run by `require('./foo')`.
-
-Because `module` provides a `filename` property (normally equivalent to
-`__filename`), the entry point of the current application can be obtained
-by checking `require.main.filename`.
 
 ### Accessing the main module
 
